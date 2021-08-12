@@ -1,0 +1,30 @@
+{
+  "headers": {
+    "client_id": "ce014c6d68454848b2b1eabb486fab92",
+    "client_secret": "575b7Dc52aA94c88BA998b817C043ba9",
+    "content-type": "application/json",
+    "user-agent": "PostmanRuntime/7.28.2",
+    "accept": "*/*",
+    "cache-control": "no-cache",
+    "postman-token": "24345e85-37af-48ea-a294-52556cbe60e8",
+    "host": "localhost:8082",
+    "accept-encoding": "gzip, deflate, br",
+    "connection": "keep-alive",
+    "content-length": "60"
+  },
+  "clientCertificate": null,
+  "method": "POST",
+  "scheme": "https",
+  "queryParams": {},
+  "requestUri": "/api/verify",
+  "queryString": "",
+  "version": "HTTP/1.1",
+  "listenerPath": "/api/*",
+  "relativePath": "/api/verify",
+  "localAddress": "/127.0.0.1:8082",
+  "uriParams": {},
+  "rawRequestUri": "/api/verify",
+  "rawRequestPath": "/api/verify",
+  "remoteAddress": "/127.0.0.1:53992",
+  "requestPath": "/api/verify"
+}

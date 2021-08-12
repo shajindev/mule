@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<error-handler name="global-error-handlerError_Handler" doc:id="09a5cb0d-55f5-4c4d-8a1a-8663eff69c39" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0ee71d2c-d66e-4e3c-9cc9-6b0fef7afca8" >
+			<logger level="INFO" doc:name="Logger" doc:id="654649e6-0eed-4a0e-be71-e50a46b9a4ac" message="..........&gt;&gt;&gt;&gt;&gt; #[error]"/>
+			<flow-ref doc:name="Flow Reference" doc:id="882a0236-65c7-41b8-9f88-067744e40154" name="global-error-handlerSub_Flow"/>
+		</on-error-propagate>
+	</error-handler>
+	<sub-flow name="global-error-handlerSub_Flow" doc:id="ba48acc6-ab86-4f51-8a35-30dcf5a08570" >
+		<ee:transform doc:name="Transform Message" doc:id="e47c098e-f53b-434c-9368-714620f49d5b">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+[{
+     Application__c : 'Background Check System',
+     IntegrationName__c : 'BG Check API',
+     RunDateandTime__c : (now() >> "EST") as DateTime {format: "yyyy-MM-dd'T'HH:mm:ss'.000Z'"},
+     ErrorMessage__c :"Error Description: " ++ if(error.description == null) 'No Error Description' as String else error.description as String ++ " Error Type:" ++ if(error.errorType.identifier == null) 'No Error Type' as String else error.errorType.identifier as String
+}]]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		<async doc:name="Async" doc:id="36652583-fd93-462f-8096-0774c0f733c4">
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="7b1dbce0-39c2-49c3-b597-80648a98c795">
+				<salesforce:create doc:name="Create" doc:id="f6e1687f-4915-492e-b3d4-aa2bfadc3721" config-ref="Salesforce_ErrorLogger_Config" type="Integration_Failure_Logs__c" />
+			</until-successful>
+				<ee:transform doc:name="Transform Message" doc:id="680ef28d-5f8e-4ce4-a4e7-3f887f2323b3">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload.successful
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="f882fe66-73d4-41bf-bba3-c1847ac204ef" message="&gt;&gt; Integration Failure Log Updated &gt;&gt; #[payload]" />
+			</async>
+		<logger level="INFO" doc:name="Logger" doc:id="efbf40d5-880d-437b-a1b7-8219bd1c5372" message="Send Email &gt;&gt;&gt; Email Server Details required for config.. Just for DEMO Purpose" />
+	</sub-flow>
+</mule>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	
+	 <http:listener-config name="demo-background-check-system-api-httpListenerConfig">
+       <http:listener-connection host="0.0.0.0" port="${secure::https.port}" protocol="HTTPS">
+       		<tls:context >
+				<tls:key-store type="jks" path="keystorehttps.jks" alias="mule" keyPassword="${secure::https.keystorepassword}" password="${secure::https.keystorepassword}"/>
+			</tls:context>
+		</http:listener-connection>
+     </http:listener-config>
+    <apikit:config name="demo-background-check-system-api-config" api="demo-background-check-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+  
+   	<salesforce:sfdc-config name="Salesforce_ErrorLogger_Config" doc:name="Salesforce Config" doc:id="1ff09c2a-3a33-4c63-ab3c-5ea2b14364b5" >
+		<salesforce:basic-connection username="${secure::sfdc.username}" password="${secure::sfdc.password}" securityToken="${secure::sfdc.token}" url="${secure::sfdc.url}" />
+	</salesforce:sfdc-config>
+	
+	<salesforce:sfdc-config name="Salesforce_BGCheck_Config" doc:name="Salesforce Config" doc:id="dd9f0e68-2873-486b-9f1f-e0c342ec09a8" >
+		<salesforce:basic-connection username="${secure::sfdc.bgcheck.username}" password="${secure::sfdc.bgcheck.password}" securityToken="${secure::sfdc.bgcheck.token}" url="${secure::sfdc.bgcheck.url}" />
+	</salesforce:sfdc-config>
+	
+	<global-property doc:name="Global Property" doc:id="9572b666-8142-4b2e-90c0-ca05905a4ce3" name="env" value="dev" />
+	<global-property doc:name="Global Property" doc:id="d34e36b3-c4df-42d2-a1ef-c44bcf591747" name="pass" value="2021muledemo1096" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="c989fa7d-149b-481e-bcf6-a1276b4ecae3" file="${env}.properties" key="${pass}" />
+   <!--  <api-gateway:autodiscovery apiId="17110593" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="7d687c5d-9949-4220-89d9-bfc7c45b6e09" flowRef="demo-background-check-system-api-main" /> 
+ -->
+	
+</mule>

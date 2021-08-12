@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="demo-background-check-system-api-suite.xml" />
+	<munit:test name="demo-background-check-system-api-main-test-success" doc:id="292def6f-ce1c-4739-b57b-556679151e56" >
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="post:\verify:application\json:demo-background-check-system-api-config" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="be473a73-f42d-42cc-a4da-a95571a5b814" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_attributes.dwl') as Object {&#10;		class: &quot;org.mule.extension.http.api.HttpRequestAttributes&quot;&#10;	}]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to demo-background-check-system-api-main" doc:id="264b91b0-acc6-408f-80ed-a6521e51e2d0" name="demo-background-check-system-api-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="5b8cb3b5-bbff-4bc7-98c9-4b45d8fc9733" is="#[MunitTools::equalTo('200')]" expression="#[vars.httpStatus]"/>
+		</munit:validation>
+	</munit:test>
+	
+	
+	<munit:test name="demo-background-check-system-api-main-test=error-any" doc:id="c670e26f-212a-4401-aab0-52e5b3fdf53d" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Router" doc:id="a4580ca8-1189-472e-8c7d-5708100961c7" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="f4dad265-f14f-4752-b733-c38e97749d04" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="MULE:UNKNOWN" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://demobackgroundchecksystemapimaintesterrorany\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://demobackgroundchecksystemapimaintesterrorany\mock_variable_1.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="19c7f977-79f9-49dd-bab6-d633c6cbcfdf" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_attributes2.dwl') as Object {&#10;		class: &quot;org.mule.extension.http.api.HttpRequestAttributes&quot;&#10;	}]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="ea6d3891-5328-4af7-a3de-366fa1a452c1" >
+				<flow-ref doc:name="Flow-ref to demo-background-check-system-api-main" doc:id="95578252-3116-48ec-ada5-3b22fea7378e" name="demo-background-check-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="d17d0c53-2534-4b32-987c-6831e8dbcb55" >
+						<logger level="INFO" doc:name="Logger" doc:id="a49a932d-5c56-4671-ae37-c7e63afaca98" message="Munit On Error 500 Continue"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="599e5e7f-e816-4eb5-8ad4-0d01e2eeda88" is="#[MunitTools::equalTo('500')]" expression="#[payload.errorCode]"/>
+		</munit:validation>
+	</munit:test>
+	
+	
+		<munit:test name="demo-background-check-system-api-main-test=error-bad_req" doc:id="999ee34d-65cf-41e0-8c6e-0f8427128f52" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Router" doc:id="33c1bf96-a113-40ca-83b8-bf3192887087" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="f4dad265-f14f-4752-b733-c38e97749d04" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://demobackgroundchecksystemapimaintesterrorany\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://demobackgroundchecksystemapimaintesterrorany\mock_variable_1.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="44317187-7c76-47d5-9109-e06f85d531f3" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_attributes3.dwl') as Object {&#10;&#10;		class: &quot;org.mule.extension.http.api.HttpRequestAttributes&quot;&#10;&#10;	}]" />
+			
+</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="44eaf25a-9054-4441-b175-6a74e2dacaed" >
+				<flow-ref doc:name="Flow-ref to demo-background-check-system-api-main" doc:id="6118d024-db15-4227-b0ac-75b60f6a48f9" name="demo-background-check-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a1bdd324-484e-46d0-ae47-baa2b49c9e4e" >
+						<logger level="INFO" doc:name="Logger" doc:id="4fede1c9-678d-4a32-a710-4cdea5f5efce" message="Munit On Error 500 Continue"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="be21a917-b130-46a2-8f01-c4e042243b55" is="#[MunitTools::equalTo('400')]" expression="#[payload.errorCode]"/>
+		</munit:validation>
+	</munit:test>
+
+
+
+<munit:test name="demo-background-check-system-api-main-test=error-not-found" doc:id="809a8ee7-ca71-434e-bc36-ab6392923a7c" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Router" doc:id="ba74cf92-f899-42b5-bc02-833093a4d870" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="f4dad265-f14f-4752-b733-c38e97749d04" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://demobackgroundchecksystemapimaintesterrorany\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://demobackgroundchecksystemapimaintesterrorany\mock_variable_1.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="9c53bb24-8992-48ac-be99-0f731cfdc817" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_attributes4.dwl') as Object {&#10;&#10;		class: &quot;org.mule.extension.http.api.HttpRequestAttributes&quot;&#10;&#10;	}]" />
+			
+</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="609e83e3-d82e-4e62-acb4-da0e804c604c" >
+				<flow-ref doc:name="Flow-ref to demo-background-check-system-api-main" doc:id="fc3e59a7-eab9-4381-9475-d64a4135687d" name="demo-background-check-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="6f2ca95b-fba5-4698-b9e9-c3114461aaf4" >
+						<logger level="INFO" doc:name="Logger" doc:id="0b70bc2f-b95d-4346-aa76-47ca74a3b0ba" message="Munit On Error 500 Continue"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="3a201828-59cc-4bbb-b0aa-b48e3d5da87b" is="#[MunitTools::equalTo('404')]" expression="#[payload.errorCode]"/>
+		</munit:validation>
+	</munit:test>
+
+<munit:test name="demo-background-check-system-api-main-test=error-not-acceptable" doc:id="af2e296f-02e0-4ce7-97d0-99a634403ed9" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Router" doc:id="868ab9d5-7062-4fe9-8078-82fceb36a8cd" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="f4dad265-f14f-4752-b733-c38e97749d04" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://demobackgroundchecksystemapimaintesterrorany\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://demobackgroundchecksystemapimaintesterrorany\mock_variable_1.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="b3e6fef1-8eae-44cd-a773-092786ac96a2" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_attributes6.dwl') as Object {&#10;&#10;		class: &quot;org.mule.extension.http.api.HttpRequestAttributes&quot;&#10;&#10;	}]" />
+			
+</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="ed1ab6c5-8695-492e-a8f7-08535cff6653" >
+				<flow-ref doc:name="Flow-ref to demo-background-check-system-api-main" doc:id="3b00d7a3-a91d-4f78-b45c-c795996b6ef8" name="demo-background-check-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="09fd02b4-6b46-45dc-aa57-1957cd508933" >
+						<logger level="INFO" doc:name="Logger" doc:id="7f17cb1a-da1f-46a6-a40d-a71ecf8d255b" message="Munit On Error 500 Continue"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="e15d96b5-95f3-48e2-b791-bc940fc762d3" is="#[MunitTools::equalTo('406')]" expression="#[payload.errorCode]"/>
+		</munit:validation>
+	</munit:test>
+
+<munit:test name="demo-background-check-system-api-main-test=error-not-implemented" doc:id="3367a5b0-61e3-4b1d-8dc5-4383b90fb7aa" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock APIkit Router" doc:id="62dcd42c-102a-4721-9595-469209595bdb" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="f4dad265-f14f-4752-b733-c38e97749d04" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+					<munit-tools:variables >
+						<munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://demobackgroundchecksystemapimaintesterrorany\mock_variable_.dwl')]" />
+						<munit-tools:variable key="httpStatus" value="#[readUrl('classpath://demobackgroundchecksystemapimaintesterrorany\mock_variable_1.dwl')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit:set-event doc:name="Set Input" doc:id="6068f565-c078-4c32-be22-8fb5e27d1b0f" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://demobackgroundchecksystemapimaintestsuccess\set-event_attributes5.dwl') as Object {&#10;&#10;		class: &quot;org.mule.extension.http.api.HttpRequestAttributes&quot;&#10;&#10;	}]" />
+			
+</munit:set-event>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="6b57ccae-3bd9-4cae-8a5d-79998f9affc2" >
+				<flow-ref doc:name="Flow-ref to demo-background-check-system-api-main" doc:id="232fc481-f6a7-4d4c-bc5d-a51f8e2374c2" name="demo-background-check-system-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="6073b1e2-08b7-4985-8da1-b38cfa642f93" >
+						<logger level="INFO" doc:name="Logger" doc:id="d8f637e6-8a0b-4b91-894b-a437a8d3e5a7" message="Munit On Error 500 Continue"/>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="e8d41fed-c491-4788-99cb-e1439c877d4d" is="#[MunitTools::equalTo('501')]" expression="#[payload.errorCode]"/>
+			
+		</munit:validation>
+		
+	</munit:test>
+
+
+</mule>
